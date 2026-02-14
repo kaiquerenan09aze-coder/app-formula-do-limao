@@ -35,19 +35,19 @@ function getTip(day: number): string {
 
 const Protocol = () => {
   const navigate = useNavigate();
-  const { user, updateProgress } = useAuth();
+  const { completedDays, toggleDayComplete, isDayCompleted } = useAuth();
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
-  const completedDays = user?.completedDays || [];
-  const currentDay = user?.currentDay || 1;
+  // Current day = max completed + 1, or 1 if none completed
+  const currentDay = completedDays.length > 0 ? Math.max(...completedDays) + 1 : 1;
 
   const handleComplete = (day: number) => {
-    updateProgress(day);
+    toggleDayComplete(day);
     setSelectedDay(null);
   };
 
   const getDayStatus = (day: number) => {
-    if (completedDays.includes(day)) return "completed";
+    if (isDayCompleted(day)) return "completed";
     if (day === currentDay) return "current";
     if (day < currentDay) return "available";
     return "locked";
@@ -61,7 +61,6 @@ const Protocol = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -79,14 +78,13 @@ const Protocol = () => {
               Protocolo 21 Dias
             </h1>
             <p className="text-sm text-muted-foreground">
-              Dia {currentDay} de 21
+              Dia {Math.min(currentDay, 21)} de 21
             </p>
           </div>
         </div>
       </motion.header>
 
       <main className="px-4 py-6">
-        {/* Phase Indicator */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -107,7 +105,6 @@ const Protocol = () => {
           ))}
         </motion.div>
 
-        {/* Calendar Grid */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -121,9 +118,7 @@ const Protocol = () => {
                 key={dayData.day}
                 whileHover={status !== "locked" ? { scale: 1.1 } : {}}
                 whileTap={status !== "locked" ? { scale: 0.95 } : {}}
-                onClick={() =>
-                  status !== "locked" && setSelectedDay(dayData.day)
-                }
+                onClick={() => status !== "locked" && setSelectedDay(dayData.day)}
                 disabled={status === "locked"}
                 className={`aspect-square rounded-xl flex flex-col items-center justify-center relative transition-all duration-300 ${
                   status === "completed"
@@ -150,7 +145,6 @@ const Protocol = () => {
           })}
         </motion.div>
 
-        {/* Legend */}
         <div className="flex flex-wrap gap-4 mb-6 text-sm">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 gradient-lime rounded" />
@@ -166,7 +160,6 @@ const Protocol = () => {
           </div>
         </div>
 
-        {/* Stats */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -179,9 +172,7 @@ const Protocol = () => {
           </div>
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
-              <p className="text-2xl font-bold text-primary">
-                {completedDays.length}
-              </p>
+              <p className="text-2xl font-bold text-primary">{completedDays.length}</p>
               <p className="text-xs text-muted-foreground">Dias completos</p>
             </div>
             <div>
@@ -191,16 +182,13 @@ const Protocol = () => {
               <p className="text-xs text-muted-foreground">Progresso</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-forest">
-                {21 - completedDays.length}
-              </p>
+              <p className="text-2xl font-bold text-forest">{21 - completedDays.length}</p>
               <p className="text-xs text-muted-foreground">Dias restantes</p>
             </div>
           </div>
         </motion.div>
       </main>
 
-      {/* Day Detail Modal */}
       <AnimatePresence>
         {selectedDay && (
           <motion.div
@@ -219,20 +207,13 @@ const Protocol = () => {
               className="bg-card rounded-t-3xl w-full max-w-lg p-6 pb-10"
             >
               <div className="w-12 h-1 bg-muted rounded-full mx-auto mb-6" />
-
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-14 h-14 gradient-lime rounded-xl flex items-center justify-center">
-                  <span className="text-2xl font-bold text-primary-foreground">
-                    {selectedDay}
-                  </span>
+                  <span className="text-2xl font-bold text-primary-foreground">{selectedDay}</span>
                 </div>
                 <div>
-                  <h3 className="font-display text-xl font-bold text-foreground">
-                    Dia {selectedDay}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {protocolDays[selectedDay - 1].title}
-                  </p>
+                  <h3 className="font-display text-xl font-bold text-foreground">Dia {selectedDay}</h3>
+                  <p className="text-sm text-muted-foreground">{protocolDays[selectedDay - 1].title}</p>
                 </div>
               </div>
 
@@ -240,27 +221,20 @@ const Protocol = () => {
                 <div className="bg-muted/50 rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Clock className="w-4 h-4 text-primary" />
-                    <p className="font-medium text-foreground">
-                      Instrução do Dia
-                    </p>
+                    <p className="font-medium text-foreground">Instrução do Dia</p>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {protocolDays[selectedDay - 1].instruction}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{protocolDays[selectedDay - 1].instruction}</p>
                 </div>
-
-                <div className="bg-yellow-light/50 rounded-xl p-4">
+                <div className="bg-secondary/50 rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Sparkles className="w-4 h-4 text-accent-foreground" />
                     <p className="font-medium text-foreground">Dica do Dia</p>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {protocolDays[selectedDay - 1].tip}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{protocolDays[selectedDay - 1].tip}</p>
                 </div>
               </div>
 
-              {!completedDays.includes(selectedDay) && selectedDay <= currentDay && (
+              {!isDayCompleted(selectedDay) && selectedDay <= currentDay && (
                 <Button
                   onClick={() => handleComplete(selectedDay)}
                   className="w-full h-14 gradient-lime text-primary-foreground font-bold shadow-glow"
@@ -270,7 +244,7 @@ const Protocol = () => {
                 </Button>
               )}
 
-              {completedDays.includes(selectedDay) && (
+              {isDayCompleted(selectedDay) && (
                 <div className="flex items-center justify-center gap-2 text-primary font-medium">
                   <Check className="w-5 h-5" />
                   Dia concluído!
