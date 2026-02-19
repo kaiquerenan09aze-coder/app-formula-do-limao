@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Calendar, BookOpen, User, LogOut } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { Home, Calendar, BookOpen, User } from "lucide-react";
 import LemonIcon from "@/components/ui/LemonIcon";
 
 const navItems = [
@@ -14,12 +13,6 @@ const navItems = [
 const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useAuth();
-
-  const handleLogout = async () => {
-    await logout();
-    navigate("/");
-  };
 
   return (
     <motion.nav
@@ -58,15 +51,6 @@ const BottomNav = () => {
             </motion.button>
           );
         })}
-        
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={handleLogout}
-          className="flex flex-col items-center gap-1 px-4 py-2 rounded-xl text-muted-foreground hover:text-destructive transition-colors"
-        >
-          <LogOut className="w-6 h-6" />
-          <span className="text-xs font-medium">Sair</span>
-        </motion.button>
       </div>
     </motion.nav>
   );

@@ -119,7 +119,7 @@ const modules = [
 ];
 
 const Dashboard = () => {
-  const { user, profile, completedFormulas, getOverallProgress, getModuleProgress } = useAuth();
+  const { completedFormulas, getOverallProgress, getModuleProgress } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const overallProgress = getOverallProgress();
@@ -148,7 +148,7 @@ const Dashboard = () => {
             <div>
               <p className="text-primary-foreground/80 text-sm">Olá,</p>
               <h1 className="text-primary-foreground font-bold text-xl">
-                {profile?.name || user?.email?.split("@")[0] || "Visitante"} 🍋
+                {"Visitante"} 🍋
               </h1>
             </div>
           </div>
