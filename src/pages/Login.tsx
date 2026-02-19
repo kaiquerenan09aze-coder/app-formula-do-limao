@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, Sparkles, UserPlus } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,36 +10,23 @@ import LemonIcon from "@/components/ui/LemonIcon";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [isSignup, setIsSignup] = useState(false);
-  const { login, signup } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
     setIsLoading(true);
 
     try {
-      if (isSignup) {
-        const result = await signup(email, password, name);
-        if (result.success) {
-          setSuccess("Conta criada! Verifique seu email para confirmar.");
-        } else {
-          setError(result.error || "Erro ao criar conta.");
-        }
+      const result = await login(email, password);
+      if (result.success) {
+        navigate("/dashboard");
       } else {
-        const result = await login(email, password);
-        if (result.success) {
-          navigate("/dashboard");
-        } else {
-          setError(result.error || "Email ou senha inválidos");
-        }
+        setError(result.error || "Email ou senha inválidos");
       }
     } catch {
       setError("Ocorreu um erro. Tente novamente.");
@@ -96,26 +83,13 @@ const Login = () => {
           className="bg-card rounded-2xl shadow-card p-8 border border-border/50"
         >
           <div className="flex items-center gap-2 mb-6">
-            {isSignup ? <UserPlus className="w-5 h-5 text-primary" /> : <Sparkles className="w-5 h-5 text-primary" />}
+            <Sparkles className="w-5 h-5 text-primary" />
             <h2 className="text-xl font-semibold text-foreground">
-              {isSignup ? "Crie sua conta" : "Acesse sua conta"}
+              Acesse sua conta
             </h2>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {isSignup && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Nome</label>
-                <Input
-                  type="text"
-                  placeholder="Seu nome"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="h-12 bg-background border-border focus:border-primary"
-                  required
-                />
-              </div>
-            )}
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Email</label>
@@ -161,12 +135,6 @@ const Login = () => {
               </motion.p>
             )}
 
-            {success && (
-              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-primary text-sm text-center font-medium">
-                {success}
-              </motion.p>
-            )}
-
             <Button
               type="submit"
               disabled={isLoading}
@@ -178,22 +146,11 @@ const Login = () => {
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                   className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full"
                 />
-              ) : isSignup ? (
-                "Criar Conta"
               ) : (
                 "Entrar"
               )}
             </Button>
           </form>
-
-          <div className="mt-6">
-            <button
-              onClick={() => { setIsSignup(!isSignup); setError(""); setSuccess(""); }}
-              className="w-full text-center text-sm text-primary hover:text-lime-dark transition-colors font-medium"
-            >
-              {isSignup ? "Já tem conta? Faça login" : "Primeiro acesso? Crie sua conta"}
-            </button>
-          </div>
         </motion.div>
 
         <motion.p
